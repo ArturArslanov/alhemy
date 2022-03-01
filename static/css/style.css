@@ -1,0 +1,56 @@
+#redh {
+font-size: 300;
+color: red;
+}
+
+#blue2 {
+font-style:italic;
+font-weight:lighter;
+color: green;
+text-indent:30px
+}
+
+#text_ {
+text-indent:15px;
+}
+
+h4 {
+border-left:20px dotted;
+}
+#mar5 {
+font-size: 20px;
+font-family: Verdana;
+font-variant:small-caps;
+margin:0px 30px 0px 20px;
+}
+#mar {
+font-size: 25px;
+font-family: Verdana;
+font-variant:small-caps;
+margin:0px 30px 0px 50px;
+}
+#mar2 {
+font-size: 20px;
+margin:30px 200px 0px 100px;
+}
+#mar3 {
+font-size: 50px;
+margin:30px 200px 0px 100px;
+}
+#err {text-align: center;
+font-size: 40px;
+}
+#rect1 {
+background-color:red;
+}
+#rect2 {
+background-color:LightCoral;
+}
+#rect3 {
+background-color:blue;
+}
+#rect4 {
+background-color:Aqua;
+}
+#t {border:3;
+}

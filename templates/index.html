@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 id="err"> работы по колонизации </h1>
+<div id="mar5">
+    {% for item in jobs%}
+        <h4> Работа №{{loop.index}} </h4>
+        <table border="2" cellpadding="5" cellspacing="2">
+            <tr bgcolor="Orchid">
+                <td>название работы</td>
+                <td>капитан команды</td>
+                <td>проведённое время</td>
+                <td>айди участников</td>
+                <td>состояние</td>
+            </tr>
+            <tr bgcolor="MediumSlateBlue">
+                <td>{{item.job}}</td>
+                <td>{{item.team_leader}}</td>
+                <td>{{item.work_size}}</td>
+                <td>{{item.collaborators}}</td>
+                {% if item.is_finished %}
+                <td bgcolor="Lime">закончилось работа {{item.end_date}} числа</td>
+                {% else %}
+                <td bgcolor="yellow">продолжает работу c {{item.start_date}} числа</td>
+                {% endif %}
+
+            </tr>
+        </table>
+    {% endfor %}
+</div>
+{% endblock %}
