@@ -35,6 +35,7 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.route('/addjob', methods=['GET', 'POST'])
 @app.route('/create_job', methods=['GET', 'POST'])
 def create_job():
     form = CreateJobForm()
@@ -43,7 +44,7 @@ def create_job():
         user = db_sess.query(User).filter(User.id == form.team_leader.data).first()
         job = Jobs(job=form.job.data,
                    work_size=form.work_size.data,
-                   collaborators=', '.join(map(str,form.collaborators.data)))
+                   collaborators=', '.join(map(str, form.collaborators.data)))
         user.jobs.append(job)
         db_sess.commit()
         return redirect('/')

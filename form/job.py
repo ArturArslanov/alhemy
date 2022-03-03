@@ -19,7 +19,7 @@ class CreateJobForm(FlaskForm):
     users = session.query(User.id, User.name).all()
     team_leader = RadioField('лидер команды', validators=[DataRequired()],
                              choices=[(i[0], i[1]) for i in users], default=1)
-    job = StringField('описание', validators=[DataRequired()])
+    job = StringField('название', validators=[DataRequired()])
     work_size = SelectField('work size', validators=[DataRequired()], choices=[str(i) for i in
                                                                                range(1000)],
                             default=15)
@@ -27,4 +27,5 @@ class CreateJobForm(FlaskForm):
     collaborators = MultiCheckboxField(label='участники команды',
                                        choices=my_choices,
                                        coerce=int)
+    is_finished = BooleanField('is finished?', default=False)
     submit = SubmitField('создать')

@@ -32,7 +32,7 @@
             {% endfor %}
         {{form.collaborators.label}}
         {{form.collaborators}}
-
+        <p> {{form.is_finished.label }} {{ form.is_finished() }}</p>
          <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     </form>
 {% endblock %}
