@@ -8,6 +8,7 @@ from data import db_session
 from config import secret_key, bd_path, params
 from data.jobs import Jobs
 from data.users import User
+from form.job import CreateJobForm
 from form.login import LoginForm
 from form.register import RegisterForm
 
@@ -32,6 +33,21 @@ def main():
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.route('/create_job', methods=['GET', 'POST'])
+def create_job():
+    form = CreateJobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == form.team_leader.data).first()
+        job = Jobs(job=form.job.data,
+                   work_size=form.work_size.data,
+                   collaborators=', '.join(map(str,form.collaborators.data)))
+        user.jobs.append(job)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('create_job.html', title='Авторизация', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
