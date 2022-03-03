@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 id="err"> список депортаментов </h1>
+<a type="button" class="btn btn-secondary" href="/">список работ</a>
+<div id="mar5">
+    {% for item in deps%}
+        <h4> Работа №{{loop.index}} </h4>
+    {{item.title}}
+        <table border="2" cellpadding="5" cellspacing="2">
+            <tr bgcolor="Orchid">
+                <td>название депортамента</td>
+                <td>шэф</td>
+                <td>участники</td>
+                <td>почта</td>
+            </tr>
+            <tr bgcolor="MediumSlateBlue">
+                <td>{{item.title}}</td>
+                <td>{{item.chief}}</td>
+                <td>{{item.members}}</td>
+                <td>{{item.email}}</td>
+            </tr>
+
+        </table>
+        {% if current_user.is_authenticated and (current_user == item.user or
+                    current_user.id == 1) %}
+            <div>
+                <a href="/update_dep/{{ item.id }}" class="btn btn-warning">
+                    Изменить
+                </a>
+                <a href="/delete_dep/{{ item.id }}" class="btn btn-danger">
+                    Удалить
+                </a>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

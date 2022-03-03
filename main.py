@@ -9,9 +9,11 @@ from data import db_session
 from config import secret_key, bd_path, params
 from data.jobs import Jobs
 from data.users import User
+from form.deportaments import CreateDepForm
 from form.job import CreateJobForm
 from form.login import LoginForm
 from form.register import RegisterForm
+from data.departments import Department
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
@@ -61,9 +63,8 @@ def edit_news(id):
     form = CreateJobForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        job = db_sess.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader in (current_user.id, 1)).first()
-        if job:
+        job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+        if job and current_user.id in (1, job.team_leader):
             form.job.data = job.job
             form.collaborators.data = list(map(int, job.collaborators.split(', ')))
             form.is_finished.data = job.is_finished
@@ -72,9 +73,8 @@ def edit_news(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        job = db_sess.query(Jobs).filter(Jobs.id == id,
-                                         Jobs.team_leader in (current_user.id, 1)).first()
-        if job:
+        job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+        if job and current_user.id in (1, job.team_leader):
             job.job = form.job.data
             job.collaborators = ', '.join(map(str, form.collaborators.data))
             job.is_finished = form.is_finished.data
@@ -108,11 +108,9 @@ def login():
 @login_required
 def news_delete(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(Jobs).filter(Jobs.id == id,
-                                      Jobs.team_leader == current_user.id
-                                      ).first()
-    if news:
-        db_sess.delete(news)
+    job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    if job and current_user.id in (1, job.team_leader):
+        db_sess.delete(job)
         db_sess.commit()
     else:
         abort(404)
@@ -131,8 +129,70 @@ def index():
 @app.route('/dep')
 def dep():
     session = db_session.create_session()
-    jobs = session.query(Jobs).all()
-    return render_template('dep.html', **params, jobs=jobs)
+    deps = session.query(Department).all()
+    return render_template('dep.html', **params, deps=deps)
+
+
+@app.route('/adddep', methods=['GET', 'POST'])
+@app.route('/create_dep', methods=['GET', 'POST'])
+def create_dep():
+    form = CreateDepForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == form.chief.data).first()
+        dep = Department(title=form.title.data,
+                         email=form.email.data,
+                         members=', '.join(map(str, form.members.data)))
+        user.departments.append(dep)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/dep')
+    return render_template('create_dep.html', title1='создание депортамента', form=form, **params)
+
+
+@app.route('/update_dep/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_deps(id):
+    form = CreateDepForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).filter(Department.id == id).first()
+        if dep and current_user.id in (1, dep.chief):
+            form.title.data = dep.title
+            form.members.data = list(map(int, dep.members.split(', ')))
+            form.email.data = dep.email
+            form.chief.data = str(dep.chief)
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).filter(Department.id == id).first()
+        if dep and current_user.id in (1, dep.chief):
+            dep.title = form.title.data
+            dep.members = ', '.join(map(str, form.members.data))
+            dep.email = form.email.data
+            dep.chief = form.chief.data
+            db_sess.commit()
+            return redirect('/dep')
+        else:
+            abort(404)
+    return render_template('create_dep.html',
+                           title1='Редактирование департамента',
+                           form=form, **params
+                           )
+
+
+@app.route('/delete_dep/<int:id>', methods=['GET', 'POST'])
+@login_required
+def dep_delete(id):
+    db_sess = db_session.create_session()
+    dep = db_sess.query(Department).filter(Department.id == id).first()
+    if dep and current_user.id in (1, dep.chief):
+        db_sess.delete(dep)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/dep')
 
 
 @app.route('/logout')
